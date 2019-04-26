@@ -15,7 +15,7 @@ node {
 
     stage "Build"
 
-        sh "docker build -t ${imageName}  locallibrary/"
+        sh "docker build -t ${imageName} ."
 
     stage "Push"
 
