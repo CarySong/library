@@ -14,7 +14,7 @@ spec:
         tier: locallibrary
     spec:
       containers:
-      - image: 127.0.0.1:30400/locallibrary:$BUILD_TAG
+      - image: $BUILDIMG:$BUILD_TAG
         name: locallibrary
         imagePullPolicy: Always
         ports:
