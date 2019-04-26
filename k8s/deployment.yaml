@@ -1,0 +1,57 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: locallibrary
+  labels:
+    app: locallibrary
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: locallibrary
+        tier: locallibrary
+    spec:
+      containers:
+      - image: 127.0.0.1:30400/locallibrary:$BUILD_TAG
+        name: locallibrary
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: locallibrary
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: locallibrary
+  labels:
+    app: locallibrary
+spec:
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: locallibrary
+    tier: locallibrary
+  type: NodePort
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+ name: locallibrary
+spec:
+  backend:
+    serviceName: locallibrary
+    servicePort: 3000
+  rules:
+  - host: locallibrary.192.168.99.100.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: locallibrary
+          servicePort: 3000
