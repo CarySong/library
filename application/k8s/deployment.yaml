@@ -48,7 +48,7 @@ spec:
     serviceName: locallibrary
     servicePort: 3000
   rules:
-  - host: locallibrary.192.168.99.101.xip.io
+  - host: locallibrary.192.168.99.102.xip.io
     http:
       paths:
       - path: /
