@@ -20,8 +20,8 @@ spec:
         ports:
         - containerPort: 3000
           name: locallibrary
-
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -36,45 +36,9 @@ spec:
     app: locallibrary
     tier: locallibrary
   type: NodePort
+
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: mongo
-  labels:
-    app: mongo
-spec:
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: mongo
-        tier: mongo
-    spec:
-      containers:
-      - image: mongo:latest
-        name: mongo
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 27017
-          name: mongo
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongo
-  labels:
-    app: mongo
-spec:
-  ports:
-    - port: 27017
-      targetPort: 27017
-  selector:
-    app: mongo
-    tier: mongo
-  type: NodePort
----
+
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -84,7 +48,7 @@ spec:
     serviceName: locallibrary
     servicePort: 3000
   rules:
-  - host: locallibrary.192.168.99.101.xip.io
+  - host: locallibrary.192.168.99.102.xip.io
     http:
       paths:
       - path: /
