@@ -1,27 +1,22 @@
-kind: PersistentVolume
-apiVersion: v1
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
-  name: mongodata-pv
-  labels:
-    type: local
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/data/mongo"
+  name: fast
+provisioner: k8s.io/minikube-hostpath
+parameters:
+  type: pd-ssd
 ---
-kind: PersistentVolumeClaim
 apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: mongodata-pvc
+  name: mongodb-pvc 
 spec:
-  accessModes:
-    - ReadWriteOnce
+  storageClassName: fast
   resources:
     requests:
-      storage: 1Gi
+      storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
 ---
 
 apiVersion: extensions/v1beta1
@@ -51,7 +46,7 @@ spec:
       volumes:
       - name: data-storage
         persistentVolumeClaim:
-          claimName: mongodata-pvc
+          claimName: mongodb-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -67,4 +62,65 @@ spec:
     app: mongo
     tier: mongo
   type: NodePort
+
+---
+
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: locallibrary
+  labels:
+    app: locallibrary
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: locallibrary
+        tier: locallibrary
+    spec:
+      containers:
+      - image: 127.0.0.1:30400/locallibrary:$BUILD_TAG
+        name: locallibrary
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: locallibrary
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: locallibrary
+  labels:
+    app: locallibrary
+spec:
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: locallibrary
+    tier: locallibrary
+  type: NodePort
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+ name: locallibrary
+spec:
+  backend:
+    serviceName: locallibrary
+    servicePort: 3000
+  rules:
+  - host: locallibrary.192.168.99.102.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: locallibrary
+          servicePort: 3000
+---
 

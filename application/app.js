@@ -13,8 +13,8 @@ var app = express();
 
 //Set up mongoose connection
 var mongoose = require('mongoose');
-var mongoDB = 'mongodb://192.168.99.102:31888/locallibrary';
-//var mongoDB = 'mongodb://mongo:27017/locallibrary';
+//var mongoDB = 'mongodb://192.168.99.102:31888/locallibrary';
+var mongoDB = 'mongodb://mongo:27017/locallibrary';
 mongoose.connect(mongoDB, { useNewUrlParser: true });
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
