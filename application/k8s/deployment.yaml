@@ -1,23 +1,48 @@
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: fast
-provisioner: k8s.io/minikube-hostpath
-parameters:
-  type: pd-ssd
----
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: PersistentVolume
 metadata:
-  name: mongodb-pvc 
+  name: mongo-pv
 spec:
-  storageClassName: fast
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
+  local:
+    path: /data/mongo 
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - node-1
+---
+
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mongo-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
   resources:
     requests:
-      storage: 100Mi
-  accessModes:
-    - ReadWriteOnce
+      storage: 1Gi
+  storageClassName: local-storage
 ---
+
 
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -43,10 +68,11 @@ spec:
           mountPath: /data/mongo
         ports:
         - containerPort: 27017
+          name: mongo
       volumes:
       - name: data-storage
         persistentVolumeClaim:
-          claimName: mongodb-pvc
+          claimName: mongo-pvc
 ---
 apiVersion: v1
 kind: Service
