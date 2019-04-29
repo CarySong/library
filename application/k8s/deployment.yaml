@@ -16,12 +16,11 @@ kind: PersistentVolumeClaim
 metadata:
   name: mongodata-pvc
 spec:
-  storageClassName: ""
-  accessModes:
-  - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
+  accessModes:
+  - ReadWriteOnce
 ---
 
 apiVersion: extensions/v1beta1
