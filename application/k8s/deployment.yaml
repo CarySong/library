@@ -22,7 +22,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
-
+---
 
 apiVersion: extensions/v1beta1
 kind: Deployment
