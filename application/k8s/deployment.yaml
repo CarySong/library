@@ -16,7 +16,7 @@ spec:
       volumes:
       - name: mongodb-data
         hostPath:
-          path: /Data/mongodb
+          path: /Data/mongo
       containers:
       - image: mongo
         name: mongodb
