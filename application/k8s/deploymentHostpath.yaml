@@ -1,29 +1,32 @@
-apiVersion: apps/v1beta1
-kind: StatefulSet
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
   name: mongo
+  labels:
+    app: mongo
 spec:
-  serviceName: mongo
-  replicas: 1
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
         app: mongo
+        tier: mongo
     spec:
       volumes:
       - name: mongodb-data
-        persistentVolumeClaim:
-        claimName: mongodb-pvc
+        hostPath:
+          path: /Data/mongo
       containers:
-      - name: mongo
-        image: mongo:latest
-        ports:
-        - name: mongo
-          containerPort: 27017
+      - image: mongo
+        name: mongodb
         volumeMounts:
         - name: mongodb-data
           mountPath: /data/db
-      
+        ports:
+        - containerPort: 27017
+          protocol: TCP
+
 ---
 apiVersion: v1
 kind: Service
