@@ -13,20 +13,19 @@ spec:
         app: mongo
         tier: mongo
     spec:
-      volumes:
-      - name: mongodb-data
-        hostPath:
-          path: /Data/mongodb
       containers:
-      - image: mongo
-        name: mongodb
+      - image: mongo:latest
+        name: mongo
+        magePullPolicy: Alwaysi
         volumeMounts:
         - name: mongodb-data
           mountPath: /data/db
-        ports:
-        - containerPort: 27017
-          protocol: TCP
-
+          ports:
+          - containerPort: 27017
+      volumes:
+      - name: mongodb-data
+        persistentVolumeClaim:
+          claimName: mongodb-pvc
 ---
 apiVersion: v1
 kind: Service
