@@ -1,73 +1,58 @@
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: locallibrary
+  labels:
+    app: locallibrary
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: locallibrary
+        tier: locallibrary
+    spec:
+      containers:
+      - image: 127.0.0.1:30400/locallibrary:$BUILD_TAG
+        name: locallibrary
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: locallibrary
+
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: kubia
+  name: locallibrary
+  labels:
+    app: locallibrary
 spec:
-  clusterIP: None
-  selector:
-    app: kubia
   ports:
-  - name: http
-    port: 80
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: locallibrary
+    tier: locallibrary
+  type: NodePort
+
 ---
-apiVersion: apps/v1beta1
-kind: StatefulSet
+apiVersion: extensions/v1beta1
+kind: Ingress
 metadata:
-  name: kubia
+ name: locallibrary
 spec:
-  serviceName: kubia
-  replicas: 3
-  template:
-    metadata:
-      labels:
-        app: kubia
-    spec:
-      containers:
-      - name: kubia
-        image: luksa/kubia-pet-peers
-        ports:
-        - name: http
-          containerPort: 8080
-        volumeMounts:
-        - name: data
-          mountPath: /var/data
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      resources:
-        requests:
-          storage: 1Mi
-      accessModes:
-      - ReadWriteOnce
+  backend:
+    serviceName: locallibrary
+    servicePort: 3000
+  rules:
+  - host: locallibrary.192.168.99.102.xip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: locallibrary
+          servicePort: 3000
 ---
-apiVersion: apps/v1beta1
-kind: StatefulSet
-metadata:
-  name: kubia
-spec:
-  serviceName: kubia
-  replicas: 3
-  template:
-    metadata:
-      labels:
-        app: kubia
-    spec:
-      containers:
-      - name: kubia
-        image: luksa/kubia-pet-peers
-        ports:
-        - name: http
-          containerPort: 8080
-        volumeMounts:
-        - name: data
-          mountPath: /var/data
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      resources:
-        requests:
-          storage: 1Mi
-      accessModes:
-      - ReadWriteOnce
