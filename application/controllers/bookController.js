@@ -27,7 +27,7 @@ exports.index = function(req, res) {
             Genre.count({}, callback);
         },
     }, function(err, results) {
-        res.render('index', { title: 'Volvo Library Home', error: err, data: results });
+        res.render('index', { title: 'Local Library Home', error: err, data: results });
     });
 };
 
